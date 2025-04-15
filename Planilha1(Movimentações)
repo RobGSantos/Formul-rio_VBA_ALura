@@ -1,0 +1,30 @@
+
+Private Sub Worksheet_Activate()
+    Me.Protect
+End Sub
+
+Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean)
+    Dim lLinha As Long
+    
+    lLinha = 2
+    
+    Do While True
+    
+        If Sheets("Movimentações").Cells(lLinha, 7) = vbNullString Then
+            Cancel = True
+            Exit Do
+        End If
+        
+        lLinha = lLinha + 1
+        
+    Loop
+    
+    If Selection.Row >= lLinha Or Selection.Column > 8 Then
+        Exit Sub
+    End If
+    
+    frmMovimentacao.lblTipoForm = "ALTERAÇÃO"
+    
+    frmMovimentacao.Show
+    Cancel = True
+End Sub
