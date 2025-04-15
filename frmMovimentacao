@@ -1,0 +1,180 @@
+Private Sub cmdSair_Click()
+    'Fecha o form no qual o botão SAIR está inserido
+    Unload Me
+End Sub
+
+Private Sub cmdSalvar_Click()
+    Dim lLinha As Long
+    
+    If Not IsDate(txtData) Then
+        MsgBox "Digite uma data válida"
+        Exit Sub
+    End If
+    
+    If lblTipoForm.Caption = "ALTERAÇÃO" Then
+        lLinha = Selection.Row
+        
+    ElseIf Not lblTipoForm.Caption = "ALTERAÇÃO" Then
+        'Verifica qual a linha vazia imediatamente abaixo do último registro
+         Dim lContador As Long
+         lContador = 2
+         Do While True
+            If Sheets("Movimentações").Cells(lContador, 7) = vbNullString Then
+                lLinha = lContador
+                Exit Do
+            End If
+            
+            lContador = lContador + 1
+         Loop
+         
+    End If
+        
+    On Error GoTo ErroHandler
+
+    'Verifica se há algum valor digitado vazio
+    If txtAtivo = vbNullString Then
+        GoTo ErroHandler
+    ElseIf txtQuantidade = vbNullString Then GoTo ErroHandler
+    ElseIf cbTipo = vbNullString Then GoTo ErroHandler
+    ElseIf txtPreco = vbNullString Then GoTo ErroHandler
+    ElseIf txtCliente = vbNullString Then GoTo ErroHandler
+    ElseIf cbContatoMesa = vbNullString Then GoTo ErroHandler
+    End If
+    
+    Planilha1.Unprotect
+    Cells(lLinha, 1) = CStr(txtAtivo)
+    Cells(lLinha, 2) = CDbl(txtQuantidade)
+    Cells(lLinha, 3) = CStr(cbTipo)
+    Cells(lLinha, 4) = CCur(txtPreco)
+    Cells(lLinha, 5) = CStr(txtCliente)
+    Cells(lLinha, 6) = CStr(cbContatoMesa)
+    Cells(lLinha, 7) = txtData
+    Cells(lLinha, 8) = txtHora
+    Planilha1.Protect
+    Planilha1.Select
+    cmdSair_Click
+    Exit Sub
+    
+ErroHandler: MsgBox "Preencha todos os dados corretamente"
+
+End Sub
+
+
+Private Sub txtData_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+    'Verifica as teclas de 1 a 9 no teclado alfanumérico
+    If KeyCode >= vbKey0 And KeyCode <= vbKey9 Then
+        
+        'Caso o comprimento da data seja 2 ou 5, adiciona as barras
+        If Len(Trim(Me.ActiveControl)) = 2 Or Len(Trim(Me.ActiveControl)) = 5 Then
+            Me.ActiveControl = Trim(Me.ActiveControl) & "/"
+        End If
+        
+    'Verifica as teclas de 1 a 9 no teclado númerico
+    ElseIf KeyCode >= vbKeyNumpad0 And KeyCode <= vbKeyNumpad9 Then
+        
+        'Caso o comprimento da data seja 2 ou 5, adiciona as barras
+        If Len(Trim(Me.ActiveControl)) = 2 Or Len(Trim(Me.ActiveControl)) = 5 Then
+            Me.ActiveControl = Trim(Me.ActiveControl) & "/"
+        End If
+    
+    'Deixa pronto o tratamento para a tecla "delete" e liber seu uso
+    ElseIf KeyCode = vbKeyDelete Then
+    
+    'Deixa pronto o tratamento para a tecla "backspace" e liber seu uso
+    ElseIf KeyCode = vbKeyBack Then
+    
+    'Caso não seja nenhum dos casos acima, cancela a digitação
+    Else
+        KeyCode = vbKeyCancel
+    End If
+End Sub
+
+
+
+
+Private Sub txtPreco_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+
+    If KeyCode >= vbKey0 And KeyCode <= vbKey9 Then
+    
+    ElseIf KeyCode >= vbKeyNumpad0 And KeyCode <= vbKeyNumpad9 Then
+    
+    ElseIf KeyCode = 188 Then
+    
+    ElseIf KeyCode = vbKeyDelete Then
+    
+    ElseIf KeyCode = vbKeyBack Then
+    
+    Else
+        KeyCode = vbKeyCancel
+    End If
+    
+End Sub
+
+Private Sub txtQuantidade_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+
+    'Quando a tecla digitada é válida, permite a inserção dela no Text Box
+    'Caso não seja válida, atribui o valor da tecla ESC no KeyCode,
+    'cancelando o valor que seria inserido
+    
+    If KeyCode >= vbKey0 And KeyCode <= vbKey9 Then
+    
+    ElseIf KeyCode >= vbKeyNumpad0 And KeyCode <= vbKeyNumpad9 Then
+        
+    ElseIf KeyCode = vbKeyDelete Then
+    
+    ElseIf KeyCode = vbKeyBack Then
+    
+    Else
+        KeyCode = vbKeyCancel
+    End If
+    
+End Sub
+
+Private Sub UserForm_Activate()
+    
+    
+    'Carrega os dados da linha selecionada, caso o tipo de formulário
+    If lblTipoForm.Caption = "ALTERAÇÃO" Then
+        
+        Dim lLinha As Long
+        
+        lLinha = Selection.Row
+        
+        txtAtivo = Cells(lLinha, 1)
+        txtQuantidade = Cells(lLinha, 2)
+        cbTipo = Cells(lLinha, 3)
+        txtPreco = Cells(lLinha, 4)
+        txtCliente = Cells(lLinha, 5)
+        cbContatoMesa = Cells(lLinha, 6)
+        txtData = Cells(lLinha, 7)
+        txtHora = Format(Cells(lLinha, 8), "HH:mm")
+    
+    Else
+        txtData = Format(Now(), "dd/mm/YYYY")
+        txtHora = Format(Now(), "HH:mm")
+    End If
+    
+End Sub
+
+
+Private Sub UserForm_Initialize()
+
+    With frmMovimentacao.cbContatoMesa
+        lContador = 2
+        
+        Do While True
+            If Sheets("Contatos Mesa Ações").Cells(lContador, 1) <> vbNullString Then
+                .AddItem Sheets("Contatos Mesa Ações").Cells(lContador, 1).Value
+            Else: Exit Do
+            End If
+            
+            lContador = lContador + 1
+        Loop
+    End With
+    
+    With frmMovimentacao.cbTipo
+        .AddItem "Compra"
+        .AddItem "Venda"
+    End With
+        
+End Sub
